@@ -1,44 +1,94 @@
-<div class="p-4 max-w-6xl mx-auto">
-  <h1 class="text-2xl font-bold mb-4">Consulta de Créditos</h1>
+<form [formGroup]="form" class="mb-6 space-y-4">
 
-  <div class="grid md:grid-cols-2 gap-4 mb-4">
-    <input
-      class="border p-2 rounded"
-      placeholder="Número da NFS-e"
-      [(ngModel)]="numeroNfse"
-    />
+  <!-- Campos -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-    <input
-      class="border p-2 rounded"
-      placeholder="Número do Crédito"
-      [(ngModel)]="numeroCredito"
-    />
+    <!-- Número NFS-e -->
+    <div>
+      <label class="block text-sm font-medium mb-1">
+        Número da NFS-e
+      </label>
+      <input
+        type="text"
+        formControlName="numeroNfse"
+        placeholder="Ex: 7891011"
+        class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    <!-- Número Crédito -->
+    <div>
+      <label class="block text-sm font-medium mb-1">
+        Número do Crédito
+      </label>
+      <input
+        type="text"
+        formControlName="numeroCredito"
+        placeholder="Ex: 123456"
+        class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
   </div>
 
-  <button
-    class="bg-blue-600 text-white px-4 py-2 rounded mb-4"
-    (click)="buscar()">
-    Consultar
-  </button>
-
-  <div class="overflow-x-auto">
-    <table class="min-w-full border text-sm">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="border p-2">Crédito</th>
-          <th class="border p-2">NFS-e</th>
-          <th class="border p-2">Data</th>
-          <th class="border p-2">ISSQN</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let c of resultados">
-          <td class="border p-2">{{ c.numeroCredito }}</td>
-          <td class="border p-2">{{ c.numeroNfse }}</td>
-          <td class="border p-2">{{ c.dataConstituicao }}</td>
-          <td class="border p-2">{{ c.valorIssqn | currency:'BRL' }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Botão -->
+  <div class="flex justify-end">
+    <button
+      type="button"
+      (click)="consultar()"
+      [disabled]="loading()"
+      class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+    >
+      Consultar
+    </button>
   </div>
+
+</form>
+
+<!-- Loading -->
+<div *ngIf="loading()" class="text-blue-600 mb-2">
+  Consultando...
+</div>
+
+<!-- Erro -->
+<div *ngIf="erro()" class="text-red-600 mb-2">
+  {{ erro() }}
+</div>
+
+<!-- Tabela -->
+<table *ngIf="resultados().length > 0"
+       class="w-full border-collapse mt-4">
+
+  <thead>
+    <tr class="bg-gray-100">
+      <th class="border p-2">Crédito</th>
+      <th class="border p-2">NFS-e</th>
+      <th class="border p-2">Data</th>
+      <th class="border p-2">Valor ISSQN</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    @for (c of resultados(); track c.numeroCredito) {
+      <tr class="hover:bg-gray-50">
+        <td class="border p-2">{{ c.numeroCredito }}</td>
+        <td class="border p-2">{{ c.numeroNfse }}</td>
+        <td class="border p-2">{{ c.dataConstituicao }}</td>
+        <td class="border p-2">{{ c.valorIssqn | currency:'BRL' }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<!-- Empty state -->
+<div *ngIf="!loading() && resultados().length === 0"
+     class="text-gray-500 mt-4">
+  Nenhum resultado encontrado
+</div>
+
+<!-- Skeleton -->
+<div *ngIf="loading()" class="space-y-2 mt-4 animate-pulse">
+  <div class="h-10 bg-gray-200 rounded"></div>
+  <div class="h-10 bg-gray-200 rounded"></div>
+  <div class="h-10 bg-gray-200 rounded"></div>
 </div>

@@ -1,30 +1,80 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { CreditoService } from '../../core/services/credito.service';
 import { Credito } from '../../core/models/credito.model';
 
 @Component({
-  selector: 'app-consulta',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  selector: 'app-consulta',
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './consulta.component.html'
 })
 export class ConsultaComponent {
 
-  numeroNfse = '';
-  numeroCredito = '';
-  resultados: Credito[] = [];
+  loading = signal(false);
+  resultados = signal<Credito[]>([]);
+  erro = signal<string | null>(null);
 
-  constructor(private service: CreditoService) {}
+  form;
 
-  buscar() {
-    if (this.numeroNfse) {
-      this.service.buscarPorNfse(this.numeroNfse)
-        .subscribe(res => this.resultados = res);
-    } else if (this.numeroCredito) {
-      this.service.buscarPorCredito(this.numeroCredito)
-        .subscribe(res => this.resultados = [res]);
+  constructor(
+    private fb: FormBuilder,
+    private service: CreditoService
+  ) {
+    this.form = this.fb.nonNullable.group({
+      numeroNfse: [''],
+      numeroCredito: ['']
+    });
+  }
+
+  consultar() {
+    if (this.loading()) return;
+
+    this.erro.set(null);
+    this.resultados.set([]);
+    this.loading.set(true);
+
+    const { numeroNfse, numeroCredito } = this.form.getRawValue();
+
+    // Validação
+    if (!numeroNfse && !numeroCredito) {
+      this.erro.set('Informe o número da NFS-e ou do Crédito');
+      this.loading.set(false);
+      return;
     }
+
+    if (numeroNfse && numeroCredito) {
+      this.erro.set('Informe apenas um campo por vez');
+      this.loading.set(false);
+      return;
+    }
+
+    // Consulta por NFS-e
+    if (numeroNfse) {
+      this.service.buscarPorNfse(numeroNfse).subscribe({
+        next: res => {
+          this.resultados.set(res);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.erro.set('Erro ao consultar por NFS-e');
+          this.loading.set(false);
+        }
+      });
+      return;
+    }
+
+    // Consulta por Crédito
+    this.service.buscarPorCredito(numeroCredito).subscribe({
+      next: res => {
+        this.resultados.set([res]);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.erro.set('Crédito não encontrado');
+        this.loading.set(false);
+      }
+    });
   }
 }
