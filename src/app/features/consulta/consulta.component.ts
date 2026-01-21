@@ -15,7 +15,6 @@ export class ConsultaComponent {
   loading = signal(false);
   resultados = signal<Credito[]>([]);
   erro = signal<string | null>(null);
-
   form;
 
   constructor(
@@ -64,17 +63,19 @@ export class ConsultaComponent {
       });
       return;
     }
-
     // Consulta por Crédito
-    this.service.buscarPorCredito(numeroCredito).subscribe({
-      next: res => {
-        this.resultados.set([res]);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.erro.set('Crédito não encontrado');
-        this.loading.set(false);
-      }
-    });
+    if (numeroCredito) {
+      this.service.buscarPorCredito(numeroCredito).subscribe({
+        next: res => {
+          this.resultados.set(res ? [res] : []);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.erro.set('Erro ao consultar por Numero Crédito');
+          this.loading.set(false);
+        }
+      });
+      return;
+    }
   }
 }

@@ -1,97 +1,98 @@
-<form [formGroup]="form" class="mb-6 space-y-4">
+<div class="p-4">
+  <form [formGroup]="form" class="mb-8 space-y-4">
 
-  <!-- Campos -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="bg-green-600 text-white p-4">
-       TAILWIND FUNCIONANDO
+    <div class="bg-green-600 text-white p-4 ">
+      Consulta Crédito
     </div>
 
-    <!-- Número NFS-e -->
-    <div>
-      <label class="block text-sm font-medium mb-1">
-        Número da NFS-e
-      </label>
-      <input
-        type="text"
-        formControlName="numeroNfse"
-        placeholder="Ex: 7891011"
-        class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+    <!-- Campos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- Número NFS-e -->
+      <div class="p-4">
+        <label class="block text-sm font-medium mb-1">
+          Número da NFS-e
+        </label>
+        <input type="text" formControlName="numeroNfse" placeholder="Ex: 7891011"
+          class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <!-- Número Crédito -->
+      <div class="p-4">
+        <label class="block text-sm font-medium mb-1">
+          Número do Crédito
+        </label>
+        <input type="text" formControlName="numeroCredito" placeholder="Ex: 123456"
+          class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
     </div>
 
-    <!-- Número Crédito -->
-    <div>
-      <label class="block text-sm font-medium mb-1">
-        Número do Crédito
-      </label>
-      <input
-        type="text"
-        formControlName="numeroCredito"
-        placeholder="Ex: 123456"
-        class="border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+    <!-- Botão -->
+    <div class="flex justify-begin p-4">
+      <button type="button" (click)="consultar()" [disabled]="loading()"
+        class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50">
+        Consultar
+      </button>
     </div>
 
+  </form>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="text-blue-600 mb-2">
+    Consultando...
   </div>
 
-  <!-- Botão -->
-  <div class="flex justify-end">
-    <button
-      type="button"
-      (click)="consultar()"
-      [disabled]="loading()"
-      class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-    >
-      Consultar
-    </button>
+  <!-- Erro -->
+  <div *ngIf="erro()" class="text-red-600 mb-2">
+    {{ erro() }}
   </div>
 
-</form>
+  <div class="w-full overflow-x-auto">
+    <!-- Tabela -->
+    <table *ngIf="resultados().length > 0" class="min-w-full border-collapse text-sm">
 
-<!-- Loading -->
-<div *ngIf="loading()" class="text-blue-600 mb-2">
-  Consultando...
-</div>
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-4 py-2 text-left whitespace-nowrap text-center">Crédito</th>
+          <th class="border px-4 py-2 text-left whitespace-nowrap text-center">NFS-e</th>
+          <th class="border px-4 py-2 text-left whitespace-nowrap text-center">Data</th>
+          <th class="border px-4 py-2 text-left whitespace-nowrap text-center">Valor ISSQN</th>
+          <th class="border px-4 py-2 text-left whitespace-nowrap text-center">Simples Nacional</th>
+          <th class="border px-4 py-2 text-left whitespace-nowrap text-center">Alíquota</th>
+          <th class="border px-4 py-2 text-left whitespace-nowrap text-center">Valor Faturado</th>
+          <th class="border px-4 py-2 text-left whitespace-nowrap text-center">Valor Dedução</th>
+          <th class="border px-4 py-2 text-left whitespace-nowrap text-center">Base Cálculo</th>
+        </tr>
+      </thead>
 
-<!-- Erro -->
-<div *ngIf="erro()" class="text-red-600 mb-2">
-  {{ erro() }}
-</div>
+      <tbody>
+        @for (c of resultados(); track c.numeroCredito) {
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2 whitespace-nowrap text-center">{{ c.numeroCredito }}</td>
+          <td class="border px-4 py-2 whitespace-nowrap text-center">{{ c.numeroNfse }}</td>
+          <td class="border px-4 py-2 whitespace-nowrap text-center">{{ c.dataConstituicao }}</td>
+          <td class="border px-4 py-2 whitespace-nowrap text-center">{{ c.valorIssqn | currency:'BRL' }}</td>
+          <td class="border px-4 py-2 whitespace-nowrap text-center">{{ c.simplesNacional ? 'Sim' : 'Não' }}</td>
+          <td class="border px-4 py-2 whitespace-nowrap ">{{ c.aliquota | currency:'BRL' }}</td>
+          <td class="border px-4 py-2 whitespace-nowrap text-center">{{ c.valorFaturado | currency:'BRL' }}</td>
+          <td class="border px-4 py-2 whitespace-nowrap text-center">{{ c.valorDeducao | currency:'BRL' }}</td>
+          <td class="border px-4 py-2 whitespace-nowrap text-center">{{ c.baseCalculo | currency:'BRL' }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <!-- Empty state -->
+   
+  <div *ngIf="!loading() && resultados().length === 0" class="text-gray-500 mt-4">
+    Nenhum resultado encontrado
+  </div>
 
-<!-- Tabela -->
-<table *ngIf="resultados().length > 0"
-       class="w-full border-collapse mt-4">
-
-  <thead>
-    <tr class="bg-gray-100">
-      <th class="border p-2">Crédito</th>
-      <th class="border p-2">NFS-e</th>
-      <th class="border p-2">Data</th>
-      <th class="border p-2">Valor ISSQN</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    @for (c of resultados(); track c.numeroCredito) {
-      <tr class="hover:bg-gray-50">
-        <td class="border p-2">{{ c.numeroCredito }}</td>
-        <td class="border p-2">{{ c.numeroNfse }}</td>
-        <td class="border p-2">{{ c.dataConstituicao }}</td>
-        <td class="border p-2">{{ c.valorIssqn | currency:'BRL' }}</td>
-      </tr>
-    }
-  </tbody>
-</table>
-
-<!-- Empty state -->
-<div *ngIf="!loading() && resultados().length === 0"
-     class="text-gray-500 mt-4">
-  Nenhum resultado encontrado
-</div>
-
-<!-- Skeleton -->
-<div *ngIf="loading()" class="space-y-2 mt-4 animate-pulse">
-  <div class="h-10 bg-gray-200 rounded"></div>
-  <div class="h-10 bg-gray-200 rounded"></div>
-  <div class="h-10 bg-gray-200 rounded"></div>
+  <!-- Skeleton -->
+  <div *ngIf="loading()" class="space-y-2 mt-4 animate-pulse">
+    <div class="h-10 bg-gray-200 rounded"></div>
+    <div class="h-10 bg-gray-200 rounded"></div>
+    <div class="h-10 bg-gray-200 rounded"></div>
+  </div>
 </div>
