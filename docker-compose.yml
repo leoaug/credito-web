@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  api:
+    image: credito-api
+    ports:
+      - "8080:8080"
+
+  web:
+    build: ./credito-web
+    ports:
+      - "4200:80"
+    depends_on:
+      - api
