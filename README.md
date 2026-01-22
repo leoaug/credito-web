@@ -7,7 +7,7 @@ FRONT-END DE CONSULTA DE CRÉDITOS ANGULAR 21
 
    git clone https://github.com/leoaug/credito-web.git	
 
-2 - Depois de baixado execute (na pasta do projeto):
+2 - Depois de baixado execute (co o caminho da pasta do projeto):
 
 	npm install
   
