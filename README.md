@@ -12,6 +12,6 @@ FRONT-END DE CONSULTA DE CRÉDITOS ANGULAR 21
 	npm install
   
 
-2 - Executar o projeto ele vai ficar em localhost:4200:
+2 - Executar o projeto ele vai ficar em localhost:4200
 
 	ng serve
